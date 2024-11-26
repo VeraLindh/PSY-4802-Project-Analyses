@@ -1,0 +1,111 @@
+---
+title: "Step E - Analyses"
+author: "Vera Lindh"
+date: "2024-10-29"
+output: html_document
+---
+
+# Reading in the dataset
+
+```{r}
+library(readr)
+urlfile <- "https://raw.githubusercontent.com/VeraLindh/PSY-4802-Project-Analyses/refs/heads/main/Psychiatric%20Symptoms%20and%20Emotion%20Perception%20Dataset%20Final.csv"
+emotionDat <- read_csv(url(urlfile))
+```
+
+# Subsetting the dataset
+
+```{r}
+library(tidyverse)
+emotionDatClean <- emotionDat %>% select("Intensity_Sadness", "Valance_Sadness", "GAD7_Anxiety", "PHQ9Depression")
+```
+
+# Renaming columns
+
+```{r}
+colnames(emotionDatClean)[1] <- "sadnessIntensity"
+colnames(emotionDatClean)[2] <- "sadnessValence" 
+colnames(emotionDatClean)[3] <- "anxScores"
+colnames(emotionDatClean)[4] <- "depressionScores"
+```
+
+# Creating linear regression models
+
+```{r}
+sadMod1 <- lm(sadnessIntensity ~ depressionScores, data=emotionDatClean)
+summary(sadMod1)
+
+sadMod2 <- lm(sadnessValence ~ depressionScores, emotionDatClean)
+summary(sadMod2)
+
+sadMod3 <- lm(sadnessIntensity ~ anxScores, data=emotionDatClean)
+summary(sadMod3)
+
+sadMod4 <- lm(sadnessValence ~ anxScores, data=emotionDatClean)
+summary(sadMod4)
+```
+
+# Scatterplots 
+
+## sadnessIntensity vs. depressionScores
+```{r}
+library(ggplot2) # loading in necessary library
+library(jtools)
+ggplot(emotionDatClean, aes(depressionScores, sadnessIntensity)) + 
+  geom_point() + 
+  geom_smooth(method="lm", color="red")+
+  geom_jitter()+
+  theme_apa()+
+  labs(x="Depression Scores (PHQ-9)", y="Sadness Intensity", title="Depression vs Sadness Intensity")
+ggsave("PSY4802-DepressionScoresVs.SadnessIntensity.tiff", width=10, height=10, units="in", dpi=300)
+```
+
+## sadnessIntensity vs. anxScores
+```{r}
+ggplot(emotionDatClean, aes(anxScores, sadnessIntensity)) + 
+  geom_point() + 
+  geom_smooth(method="lm", color="red")+
+  geom_jitter()+
+  theme_apa()+labs(x="Anxiety Scores (GAD-7)", y="Sadness Intensity", title="Anxiety vs Sadness Intensity") 
+ggsave("PSY4802-AnxietyScoresVs.SadnessIntensity.tiff", width=10, height=10, units="in", dpi=300)
+```
+
+## sadnessValence vs. depressionScores
+```{r}
+ggplot(emotionDatClean, aes(depressionScores, sadnessValence)) + 
+  geom_point() + 
+  geom_smooth(method="lm", color="red")+
+  geom_jitter()+
+  theme_apa()+
+  labs(x="Depression Scores (PHQ-9", y="Sadness Valence", title="Depression vs Sadness Valence")
+ggsave("PSY4802-DepressionScoresVs.SadnessValence.tiff", width=10, height=10, units="in", dpi=300)
+```
+
+## sadnessValence vs. anxScores
+```{r}
+ggplot(emotionDatClean, aes(anxScores, sadnessValence)) +
+  geom_point() + 
+  geom_smooth(method="lm", color="red")+
+  geom_jitter()+
+  theme_apa()+
+  labs(x="Anxiety Scores (GAD-7)",y="Sadness Valence", title="Anxiety vs Sadness Valence")
+ggsave("PSY4802-AnxietyScoresVs.SadnessValence.tiff", width=10, height=10, units="in", dpi=300)
+```
+
+# Residual plots
+
+```{r}
+plot(sadMod1)
+```
+
+```{r}
+plot(sadMod2)
+```
+
+```{r}
+plot(sadMod3)
+```
+
+```{r}
+plot(sadMod4)
+```
